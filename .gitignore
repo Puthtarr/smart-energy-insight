@@ -3,7 +3,8 @@ __pycache__/
 .env
 *.db
 *.log
-.parquet
+*.parquet
+*.json
 venv/
 .envrc
 .idea/
