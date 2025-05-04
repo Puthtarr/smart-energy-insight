@@ -1,0 +1,29 @@
+version: '3.8' # version ของ docker compose
+
+services: # กำหนด services ที่จะรันทั้งหมดในโปรเจกต์
+  postgres:
+    image: postgres:14 # ใช้ image จาก Docker Hub เช่น postgres:14
+    container_name: smart_pg # ชื่อเรียก container ที่เรากำหนดเอง
+    environment: # กำหนด ENV สำหรับ container เช่น user/password
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: energy_db
+    ports:
+      - "5432:5432" # ให้ localhost ใช้ port 5432 เข้าถึง DB
+    volumes:
+      - pgdata:/var/lib/postgresql/data  # ให้ข้อมูลคงอยู่แม้ container ถูกลบ
+  minio:
+    image: minio/minio
+    container_name: smart_minio
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin123
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000" #API Access
+      - "9001:9001" # Web UI console
+    volumes:
+      - minio_data:/data
+volumes:
+  pgdata:
+  minio_data:
