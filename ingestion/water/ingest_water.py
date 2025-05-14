@@ -16,6 +16,7 @@ logging.basicConfig(
 
 def fetch_water():
     url = "https://www.mwa.co.th/services/users-should-know/users-service-rate/service-rate/"
+    print('get url request')
     res = requests.get(url)
     soup = BeautifulSoup(res.content, "html.parser") # res.content = RAW html ที่ดึงจากหน้าเว็บ
 
@@ -36,15 +37,16 @@ def fetch_water():
 
     # save to JSON
     date_str = datetime.today().strftime("%Y-%m-%d")
-    out_dir = "data/raw"
-    os.makedirs(out_dir, exist_ok=True)
-    output_path = os.path.join(out_dir, f"water_tariff_{date_str}.json")
+    output_dir = os.path.join("data", "raw")
+    os.makedirs(output_dir, exist_ok=True)
+    out_path = os.path.join(output_dir, f"water_tariff_{date_str}.json")
 
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
-    logging.info(f"Fetch Water tarif and Saved Success to {output_path}")
-    return output_path
+    logging.info(f"✅ Saved MWA water tariff to: {out_path}")
+    print(out_path)
+    return out_path
 
 if __name__ == "__main__":
     fetch_water()
