@@ -28,6 +28,7 @@ def fetch_bangchak_raw(date_str: str) -> str:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
         logging.info(f"Fetched and saved raw Bangchak data to: {file_path}")
+        print(file_path)
         return file_path
 
     except Exception as e:
@@ -35,6 +36,7 @@ def fetch_bangchak_raw(date_str: str) -> str:
         raise
 
 if __name__ == "__main__":
+    # Test
     date_str = datetime.date.today().isoformat()
     json_path = fetch_bangchak_raw(date_str)
     print(f"Saved to: {json_path}")

@@ -30,7 +30,7 @@ def clean_bangchak_data(json_path: str) -> pd.DataFrame:
 
             cleaned_df = df[["oil_name", "price_today", "price_date", "ingested_at", "source"]]
 
-            logging.info(f"✅ Cleaned Bangchak data from: {json_path}")
+            logging.info(f"Cleaned Bangchak data from: {json_path}")
             return cleaned_df
         else:
             raise ValueError("NOT FOUND 'OilList' In JSON")
@@ -40,5 +40,5 @@ def clean_bangchak_data(json_path: str) -> pd.DataFrame:
         raise
 
 if __name__ == '__main__':
-    df = clean_bangchak_data("data/raw/bangchak_2025-05-05.json")
+    df = clean_bangchak_data("data/raw/bangchak_2025-05-15.json")
     print(df.head())

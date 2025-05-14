@@ -18,6 +18,9 @@ logging.basicConfig(
 def load_parquet_to_postgres(parquet_path: str):
     df = pd.read_parquet(parquet_path)
 
+    # 🛡️ กรอง NaT (Not a Time) ออกจาก price_date
+    df = df.dropna(subset=["price_date"])
+
     try:
         conn = psycopg2.connect(
             host="localhost",
@@ -46,12 +49,13 @@ def load_parquet_to_postgres(parquet_path: str):
         conn.commit()
         cur.close()
         conn.close()
-        logging.info(f"Loaded data from {parquet_path} into fuel_prices table")
+        logging.info(f"Loaded {len(df)} rows from {parquet_path} into fuel_prices")
 
     except Exception as e:
         logging.error(f"Failed to load data to PostgreSQL: {e}")
         raise
 
+
 if __name__ == '__main__':
-    parquet_path = "data/processed/bangchak_prices_2025-05-05.parquet"
+    parquet_path = "data/processed/bangchak_prices_2025-05-15.parquet"
     load_parquet_to_postgres(parquet_path)

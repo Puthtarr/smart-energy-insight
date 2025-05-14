@@ -5,6 +5,7 @@ import datetime
 import boto3
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
+from clean_bangchak import clean_bangchak_data
 
 # Load environment variables
 load_dotenv()
@@ -39,39 +40,7 @@ def save_as_parquet(df: pd.DataFrame, date_str: str) -> str:
         logging.error(f"Failed to save Parquet: {e}")
         raise
 
-
-def upload_to_minio(file_path: str, bucket_name: str, object_name: str = None):
-    minio_endpoint = os.getenv("MINIO_ENDPOINT")
-    minio_access_key = os.getenv("MINIO_ACCESS_KEY")
-    minio_secret_key = os.getenv("MINIO_SECRET_KEY")
-    use_ssl = os.getenv("MINIO_USE_SSL", "false").lower() == "true"
-
-    if object_name is None:
-        object_name = os.path.basename(file_path)
-
-    try:
-        s3_client = boto3.client(
-            "s3",
-            endpoint_url=f"http{'s' if use_ssl else ''}://{minio_endpoint}",
-            aws_access_key_id=minio_access_key,
-            aws_secret_access_key=minio_secret_key,
-            verify=use_ssl
-        )
-
-        buckets = s3_client.list_buckets()
-        if not any(b["Name"] == bucket_name for b in buckets.get("Buckets", [])):
-            s3_client.create_bucket(Bucket=bucket_name)
-
-        s3_client.upload_file(file_path, bucket_name, object_name)
-        logging.info(f"Uploaded {file_path} to MinIO bucket '{bucket_name}' as '{object_name}'")
-
-    except FileNotFoundError:
-        logging.error(f"File not found: {file_path}")
-        raise
-    except NoCredentialsError:
-        logging.error("Credentials not available for MinIO")
-        raise
-    except Exception as e:
-        logging.error(f"Failed to upload to MinIO: {e}")
-        raise
-
+if __name__ == "__main__":
+    date_str = datetime.date.today().isoformat()
+    df_clean = clean_bangchak_data('data/raw/bangchak_2025-05-15.json')
+    save_as_parquet(df_clean, date_str)
