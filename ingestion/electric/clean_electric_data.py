@@ -20,6 +20,7 @@ def extract_price(text):
         return None
 
 def clean_mea_tariff(json_path: str):
+    print(json_path)
     with open(json_path, 'r', encoding='utf-8') as f:
         raw = json.load(f)
 

@@ -19,11 +19,11 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-def save_as_parquet(df: pd.DataFrame, date_str: str, prefix: str) -> str:
+def save_as_parquet(df: pd.DataFrame, date_str: str, prefix: str = 'electric') -> str:
     """
     Save cleaned electricity dataframe to processed folder as parquet
     """
-    output_dir = os.path.join("ingestion", "electric", "data", "processed")
+    output_dir = os.path.join("data", "processed")
     os.makedirs(output_dir, exist_ok=True)
 
     file_path = os.path.join(output_dir, f"{prefix}_tariff_{date_str}.parquet")

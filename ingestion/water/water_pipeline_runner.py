@@ -10,11 +10,12 @@ import psycopg2
 import boto3
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
-from ingest_bangchak import fetch_bangchak_raw
-from clean_bangchak import clean_bangchak_data
-from datalake_uploader import save_as_parquet
+
+from ingest_water import fetch_water
+from clean_water_data import clean_water_tariff, extract_price
+from water_datalake_uploader import save_as_parquet
 from ingestion.common.datalake_uploader import *
-from load_fuel_to_postgres import load_parquet_to_postgres
+from load_water_to_postgres import load_water_to_postgres
 
 load_dotenv()
 
@@ -22,11 +23,10 @@ load_dotenv()
 LOG_DIR = "logs"
 os.makedirs(LOG_DIR, exist_ok=True)
 logging.basicConfig(
-    filename=os.path.join(LOG_DIR, "fuel_ingestion.log"),
+    filename=os.path.join(LOG_DIR, "water_ingestion.log"),
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
 def retry(func, max_attempts=3, wait_sec=5):
     for i in range(max_attempts):
         try:
@@ -41,37 +41,28 @@ if __name__ == "__main__":
         date_str = datetime.today().strftime("%Y-%m-%d")
 
         # 1. Fetch
-        retry(lambda: fetch_bangchak_raw(date_str))
-        logging.info("Fetch fuel data success")
+        json_path = retry(lambda: fetch_water())
+        logging.info("Fetched water tariff data")
 
         # 2. Clean
-        json_path = f"data/raw/bangchak_{date_str}.json"
-        clean_df = retry(lambda: clean_bangchak_data(json_path))
-        logging.info("Cleaned fuel data")
+        df_clean = retry(lambda: clean_water_tariff(json_path))
+        logging.info("Cleaned water tariff data")
 
-        # 3. Save Parquet
-        parquet_path = retry(lambda: save_as_parquet(clean_df, date_str, prefix="bangchak_prices"))
+        # 3. Save as Parquet
+        parquet_path = retry(lambda: save_as_parquet(df_clean, date_str, prefix="water"))
         logging.info(f"Saved parquet: {parquet_path}")
 
         # 4. Upload to MinIO
-        object_name = f"fuel/{os.path.basename(parquet_path)}"
+        object_name = f"water/{os.path.basename(parquet_path)}"
         retry(lambda: upload_to_minio(parquet_path, "energy-data", object_name))
         logging.info("Uploaded to MinIO")
 
         # 5. Load to PostgreSQL
-        retry(lambda: load_parquet_to_postgres(parquet_path))
+        retry(lambda: load_water_to_postgres(parquet_path))
         logging.info("Loaded to PostgreSQL")
 
-        logging.info("Fuel pipeline complete.")
+        logging.info("Water pipeline complete.")
 
     except Exception as e:
-        logging.error(f"Fuel pipeline failed: {e}")
+        logging.error(f"Water pipeline failed: {e}")
         raise
-
-
-
-
-
-
-
-
