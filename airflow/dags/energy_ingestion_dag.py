@@ -28,7 +28,7 @@ with DAG(
 
     ingest_electric = BashOperator(
         task_id='ingest_electric',
-        bash_command='python3 ingestion/electric/electric_pipeline_runner.py'
+        bash_command='python3 ingestion/electric/elect_pipeline_runner.py'
     )
 
     ingest_fuel >> ingest_water >> ingest_electric
