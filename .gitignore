@@ -1,12 +1,18 @@
+# Python cache
 __pycache__/
 *.pyc
+
+# Data files
+data/
+**/data/raw/
+**/data/processed/
+
+# Env
 .env
-*.db
+
+# Logs
+logs/
 *.log
+
+# Parquet
 *.parquet
-*.json
-venv/
-.envrc
-.idea/
-/data
-/logs
